@@ -220,7 +220,7 @@ public class RpcConfigChangeNotifier extends Subscriber<LocalDataChangeEvent> {
             ConfigExecutor.getClientConfigNotifierServiceExecutor()
                     .schedule(retryTask, retryTask.tryTimes * 2, TimeUnit.SECONDS);
         } else {
-            //果连接已经不存在，不做任何处理。
+            //如果连接已经不存在，不做任何处理。
             // client is already offline,ingnore task.
         }
         

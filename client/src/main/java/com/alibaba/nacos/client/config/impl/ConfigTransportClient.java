@@ -242,7 +242,7 @@ public abstract class ConfigTransportClient {
         
         if (securityProxy.isEnabled()) {
             securityProxy.login(serverListManager.getServerUrls());
-            
+
             this.executor.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
@@ -251,7 +251,7 @@ public abstract class ConfigTransportClient {
             }, 0, this.securityInfoRefreshIntervalMills, TimeUnit.MILLISECONDS);
             
         }
-        
+        //执行配置监听
         startInternal();
     }
     

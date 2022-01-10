@@ -458,7 +458,7 @@ public class ClientWorker implements Closeable {
         this.configFilterChainManager = configFilterChainManager;
         
         init(properties);
-
+        //创建一个grpc通信客户端
         agent = new ConfigRpcTransportClient(properties, serverListManager);
         
         ScheduledExecutorService executorService = Executors
@@ -745,7 +745,15 @@ public class ClientWorker implements Closeable {
                 public void run() {
                     while (!executor.isShutdown() && !executor.isTerminated()) {
                         try {
-                            //从阻塞塞队列获取数据 等待唤醒 或 等待5秒超时
+
+                            /**
+                             *   从阻塞塞队列获取数据 等待唤醒 或 等待5秒超时
+                             *   什么情况下会唤醒呢？ - 阻塞队列里有数据了
+                             *
+                             *   1、配置同步任务执行中（executeConfigListen），服务端监听响应ConfigChangeBatchListenResponse中包含变更的配置
+                             *   2、新增listener时（addListeners），需要立即同步配置。注意也会把整个CacheData标记为syncWithServer=false，强制执行配置同步，保证双端数据一致
+                             *   3、服务端发送ConfigChangeNotifyRequest请求，表示某个配置发生变更，需要客户端执行配置同步。 initRpcClientHandler
+                             */
                             listenExecutebell.poll(5L, TimeUnit.SECONDS);
                             if (executor.isShutdown() || executor.isTerminated()) {
                                 continue;
@@ -912,6 +920,7 @@ public class ClientWorker implements Closeable {
                     //表示注销监听
                     configChangeListenRequest.setListen(false);
                     try {
+                        // 每个taskId对应一个RpcClient #1
                         RpcClient rpcClient = ensureRpcClient(taskId);
                         boolean removeSuccess = unListenConfigChange(rpcClient, configChangeListenRequest);
                         if (removeSuccess) {

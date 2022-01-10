@@ -61,7 +61,7 @@ public class ConfigChangeBatchListenRequestHandler
             groupKey = StringPool.get(groupKey);
             
             String md5 = StringPool.get(listenContext.getMd5());
-            
+            //有listener的groupkey
             if (configChangeListenRequest.isListen()) {
                 // 把connectionId -> key 和 key -> md5的关系保存在服务端
                 configChangeListenContext.addListen(groupKey, md5, connectionId);
